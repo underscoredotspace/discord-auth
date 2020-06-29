@@ -1,0 +1,19 @@
+{
+  "name": "discord-auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/underscoredotspace/discord-auth.git"
+  },
+  "author": "",
+  "license": "CC-BY-4.0",
+  "bugs": {
+    "url": "https://github.com/underscoredotspace/discord-auth/issues"
+  },
+  "homepage": "https://github.com/underscoredotspace/discord-auth#readme"
+}
