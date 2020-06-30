@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "#"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/underscoredotspace/discord-auth/issues"
   },
-  "homepage": "https://github.com/underscoredotspace/discord-auth#readme"
+  "homepage": "https://github.com/underscoredotspace/discord-auth#readme",
+  "dependencies": {
+    "fetch": "^1.1.0",
+    "form-data": "^3.0.0",
+    "node-fetch": "^2.6.0"
+  }
 }
