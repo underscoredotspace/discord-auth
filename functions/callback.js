@@ -1,14 +1,12 @@
 const fetch = require("node-fetch")
 const qs = require("querystring")
 
-exports.handler = (event, context, callback) => {
-    const code = event.queryStringParameters.code
-
+exports.handler = async (event) => {
     const form = qs.stringify({
         client_id: process.env["CLIENT_ID"],
         client_secret: process.env["CLIENT_SECRET"],
         grant_type: "authorization_code",
-        code,
+        code: event.queryStringParameters.code,
         redirect_uri: process.env["REDIRECT_URI"],
         scope: "identify",
     })
@@ -22,18 +20,41 @@ exports.handler = (event, context, callback) => {
         body: form,
     }
 
-    fetch("https://discord.com/api/oauth2/token", options)
+    const auth = await fetch("https://discord.com/api/oauth2/token", options)
         .then((res) => res.json())
-        .then((response) => {
-            callback(null, {
-                statusCode: 200,
-                body: JSON.stringify(response),
-            })
-        })
-        .catch((err) => {
-            callback(null, {
-                statusCode: err.status,
-                body: err.statusText,
-            })
-        })
+        .catch((error) => ({ error }))
+
+    if (auth.error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify(auth.error),
+        }
+    }
+
+    const { redirect } = qs.parse(
+        qs.unescape(event.queryStringParameters.state)
+    )
+
+    function createCookie(values) {
+        const cookie = JSON.stringify(values)
+
+        return `auth=${cookie}; path=/;`
+    }
+
+    const { access_token, refresh_token, expires_in } = auth
+
+    return {
+        statusCode: 302,
+        body: "",
+        headers: {
+            location: redirect,
+            "Set-Cookie": createCookie({
+                access_token,
+                refresh_token,
+                access_expires: new Date(
+                    Date.now() + expires_in * 1000
+                ).valueOf(),
+            }),
+        },
+    }
 }
