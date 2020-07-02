@@ -43,11 +43,16 @@ exports.handler = async (event) => {
 
     const { access_token, refresh_token, expires_in } = auth
 
+    const callback_uri = process.env["CALLBACK"]
+    const callback = redirect
+        ? `${callback_uri}?redirect=${redirect}`
+        : callback_uri
+
     return {
         statusCode: 302,
         body: "",
         headers: {
-            location: redirect,
+            location: callback,
             "Set-Cookie": createCookie({
                 access_token,
                 refresh_token,
