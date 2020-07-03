@@ -1,5 +1,7 @@
 const fetch = require("node-fetch")
 const qs = require("querystring")
+const uuid = require("uuid")
+const firebase = require("../helpers/firebase")
 
 exports.handler = async (event) => {
     const form = qs.stringify({
@@ -31,35 +33,46 @@ exports.handler = async (event) => {
         }
     }
 
+    const user = await fetch("https://discord.com/api/users/@me", {
+        headers: { authorization: `Bearer ${auth.access_token}` },
+    })
+        .then((res) => res.json())
+        .catch((error) => ({ error }))
+
+    if (user.error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify(user.error),
+        }
+    }
+
+    const id = uuid.v4()
+    const { access_token, refresh_token, expires_in } = auth
+    const authObject = {
+        access_token,
+        refresh_token,
+        access_expires: new Date(Date.now() + expires_in * 1000).valueOf(),
+    }
+
+    const db = firebase()
+    const docRef = db.collection("auth").doc(id)
+    docRef.set({
+        ...user,
+        ...authObject,
+    })
+
     const { redirect } = qs.parse(
         qs.unescape(event.queryStringParameters.state)
     )
 
-    function createCookie(values) {
-        const cookie = JSON.stringify(values)
-
-        return `auth=${cookie}; path=/;`
-    }
-
-    const { access_token, refresh_token, expires_in } = auth
-
+    const responseQs = qs.stringify(redirect ? { id, redirect } : { id })
     const callback_uri = process.env["CALLBACK"]
-    const callback = redirect
-        ? `${callback_uri}?redirect=${redirect}`
-        : callback_uri
 
     return {
         statusCode: 302,
         body: "",
         headers: {
-            location: callback,
-            "Set-Cookie": createCookie({
-                access_token,
-                refresh_token,
-                access_expires: new Date(
-                    Date.now() + expires_in * 1000
-                ).valueOf(),
-            }),
+            location: `${callback_uri}?${responseQs}`,
         },
     }
 }

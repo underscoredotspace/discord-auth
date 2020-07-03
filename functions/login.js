@@ -2,6 +2,19 @@ const qs = require("querystring")
 
 exports.handler = async function (event) {
     const { redirect } = event.queryStringParameters
+    const { auth: id } = qs.parse(event.headers.cookie)
+    if (id && id.length > 0) {
+        const responseQs = qs.stringify(redirect ? { id, redirect } : { id })
+        const callback_uri = process.env["CALLBACK"]
+
+        return {
+            statusCode: 302,
+            body: "",
+            headers: {
+                location: `${callback_uri}?${responseQs}`,
+            },
+        }
+    }
 
     const state = qs.stringify({ redirect })
 
