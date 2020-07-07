@@ -21,7 +21,7 @@ exports.handler = async function (event) {
     const query = qs.stringify({
         response_type: "code",
         client_id: process.env["CLIENT_ID"],
-        scope: "identify",
+        scope: "identify email guilds.join",
         state,
         redirect_uri: process.env["REDIRECT_URI"],
         prompt: "none",
