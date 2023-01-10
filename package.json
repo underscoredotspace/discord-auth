@@ -19,7 +19,7 @@
   "homepage": "https://github.com/underscoredotspace/discord-auth#readme",
   "dependencies": {
     "fetch": "^1.1.0",
-    "firebase-admin": "^8.13.0",
+    "firebase-admin": "^11.4.1",
     "form-data": "^3.0.0",
     "node-fetch": "^2.6.0",
     "uuid": "^8.2.0"
